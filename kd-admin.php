@@ -5,7 +5,7 @@ $user_home = new USER();
 
 if(!$user_home->is_logged_in())
 {
-  $user_home->redirect('index.php');
+  $user_home->redirect('admin/index.php');
 }
 
 $stmt = $user_home->runQuery("SELECT * FROM tbl_users WHERE userID=:uid");
@@ -45,6 +45,11 @@ scratch. This page gets rid of all links and provides the needed markup only.
   <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
   <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
   <![endif]-->
+
+  <!-- register -->
+  <script type="text/JavaScript" src="js/sha512.js"></script> 
+  <script type="text/JavaScript" src="js/forms.js"></script>
+
 </head>
 <!--
 BODY TAG OPTIONS:
@@ -169,9 +174,9 @@ desired effect
             </span>
           </a>
           <ul class="treeview-menu">
-            <li><a href="#">User</a></li>
+            <li><a href="kd-admin.php?page=user_list">User</a></li>
             <li><a href="kd-admin.php?page=user">Register</a></li>
-            <li><a href="#">Reset Password</a></li>
+            <li><a href="admin/fpass.php">Reset Password</a></li>
           </ul>
         </li>
       </ul>
@@ -195,11 +200,18 @@ desired effect
     <section class="content">
 
         <?php 
-          if(@$_REQUEST["page"]=="user"){
-            include "admin/user_register.php";
-          }else{
-              include "admin/main.php";
-          }
+            switch (@$_REQUEST["page"]) {
+              case 'user':
+                include "admin/user_register.php";
+                break;
+                 case 'user_list':
+                include "admin/user_list.php";
+                break;
+              
+              default:
+                include "admin/main.php";
+                break;
+            }
 
         ?>
     </section>

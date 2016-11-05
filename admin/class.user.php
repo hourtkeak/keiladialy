@@ -26,19 +26,34 @@ class USER
 		return $stmt;
 	}
 	
-	public function register($uname,$email,$upass,$code)
+	public function register($email, $uname, $upass,$code,$fname, $lname, $dname, $position, $ulevel, $uphoto)
 	{
 		try
 		{							
-			$password = md5($upass);
-			$stmt = $this->conn->prepare("INSERT INTO tbl_users(userName,userEmail,userPass,tokenCode) 
-			                                             VALUES(:user_name, :user_mail, :user_pass, :active_code)");
-			$stmt->bindparam(":user_name",$uname);
-			$stmt->bindparam(":user_mail",$email);
-			$stmt->bindparam(":user_pass",$password);
-			$stmt->bindparam(":active_code",$code);
-			$stmt->execute();	
-			return $stmt;
+		
+		// Create a random salt
+        $random_salt = hash('sha512', uniqid(openssl_random_pseudo_bytes(16), TRUE));
+
+        // Create salted password 
+        $password = hash('sha512', $upass. $random_salt);
+
+
+		$stmt = $this->conn->prepare("INSERT INTO tbl_users(userName, userEmail, userPass, saltPass, tokenCode, firstName, LastName, displayName, position, level, userPhoto) 
+			                                             VALUES(:user_name, :user_email, :user_pass, :salt_pass, :actave_code, :first_name, :last_name, :display_Name, :user_position, :user_level, :user_photo)");
+		$stmt->bindparam(":user_name",$uname);
+		$stmt->bindparam(":user_email",$email);
+		$stmt->bindparam(":user_pass",$password);
+		$stmt->bindparam(":salt_pass",$random_salt);
+		$stmt->bindparam(":actave_code",$code);
+		$stmt->bindparam(":first_name",$fname);
+		$stmt->bindparam(":last_name",$lname);
+		$stmt->bindparam(":display_Name",$dname);
+		$stmt->bindparam(":user_position",$position);
+		$stmt->bindparam(":user_level",$ulevel);
+		$stmt->bindparam(":user_photo",$uphoto);
+		$stmt->execute();	
+		return $stmt;
+		
 		}
 		catch(PDOException $ex)
 		{

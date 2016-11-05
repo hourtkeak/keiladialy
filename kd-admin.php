@@ -1,3 +1,18 @@
+<?php
+session_start();
+require_once 'admin/class.user.php';
+$user_home = new USER();
+
+if(!$user_home->is_logged_in())
+{
+  $user_home->redirect('index.php');
+}
+
+$stmt = $user_home->runQuery("SELECT * FROM tbl_users WHERE userID=:uid");
+$stmt->execute(array(":uid"=>$_SESSION['userSession']));
+$row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+?>
 <!DOCTYPE html>
 <!--
 This is a starter template page. Use this page to start your new project from
@@ -7,7 +22,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>KD::Admin | Starter</title>
+  <title><?php echo $row['userEmail']; ?></title>
   <!-- Tell the browser to be responsive to screen width -->
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   <!-- Bootstrap 3.3.6 -->
@@ -89,7 +104,7 @@ desired effect
                 <img src="img/user2-160x160.jpg" class="img-circle" alt="User Image">
 
                 <p>
-                  Alexander Pierce - Web Developer
+                  <?php echo $row['userEmail']; ?> - Reporter
                   <small>Member since Nov. 2012</small>
                 </p>
               </li>
@@ -101,7 +116,7 @@ desired effect
                   <a href="#" class="btn btn-default btn-flat">Profile</a>
                 </div>
                 <div class="pull-right">
-                  <a href="#" class="btn btn-default btn-flat">Sign out</a>
+                  <a href="admin/logout.php" class="btn btn-default btn-flat">Sign out</a>
                 </div>
               </li>
             </ul>
@@ -148,14 +163,15 @@ desired effect
         <li class="active"><a href="#"><i class="fa fa-link"></i> <span>Link</span></a></li>
         <li><a href="#"><i class="fa fa-link"></i> <span>Another Link</span></a></li>
         <li class="treeview">
-          <a href="#"><i class="fa fa-link"></i> <span>Multilevel</span>
+          <a href="#"><i class="fa fa-fw fa-user"></i> <span>User Setting</span>
             <span class="pull-right-container">
               <i class="fa fa-angle-left pull-right"></i>
             </span>
           </a>
           <ul class="treeview-menu">
-            <li><a href="#">Link in level 2</a></li>
-            <li><a href="#">Link in level 2</a></li>
+            <li><a href="#">User</a></li>
+            <li><a href="kd-admin.php?page=user">Register</a></li>
+            <li><a href="#">Reset Password</a></li>
           </ul>
         </li>
       </ul>
@@ -168,17 +184,24 @@ desired effect
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <section class="content-header">
-      <h1>
-        Page Header
-        <small>Optional description</small>
+        <h1>
+        Dashboard
+        <small> <b>KD</b> V2.0</small>
+      </h1>
       </h1>
     </section>
 
     <!-- Main content -->
     <section class="content">
 
-      <!-- Your Page Content Here -->
+        <?php 
+          if(@$_REQUEST["page"]=="user"){
+            include "admin/user_register.php";
+          }else{
+              include "admin/main.php";
+          }
 
+        ?>
     </section>
     <!-- /.content -->
   </div>

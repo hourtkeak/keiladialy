@@ -1,11 +1,14 @@
 <?php
 session_start();
 require_once 'admin/class.user.php';
+include 'admin/upload_function.php';
+
 $user_home = new USER();
 
-if(!$user_home->is_logged_in())
-{
+if(!$user_home->is_logged_in()){
+
   $user_home->redirect('admin/index.php');
+
 }
 
 $stmt = $user_home->runQuery("SELECT * FROM tbl_users WHERE userID=:uid");

@@ -11,9 +11,8 @@ if(isset($_POST['btn-signup']))
   $position = trim($_POST['txtposition']);
   $ulevel = trim($_POST['txtlevel']);
   $uphoto = $_FILES["txtuphoto"]["name"];
-      
-    /* Move thumnail image */
-    $img_smg_s=uploadImage($target_dir_thumnail, 'img_thumnail');
+
+
 
   $stmt = $user_home->runQuery("SELECT * FROM tbl_users WHERE userEmail=:email_id");
   $stmt->execute(array(":email_id"=>$email));
@@ -31,7 +30,12 @@ if(isset($_POST['btn-signup']))
   else
   {
     if($user_home->register($email, $uname, $upass,$code,$fname, $lname, $dname, $position, $ulevel, $uphoto))
-    {     
+    { 
+      
+       /* Move thumnail image */
+      $target_dir_thumnail = 'img/user/';
+      $img_smg_s=uploadImage($target_dir_thumnail, 'txtuphoto');    
+      
       $id = $user_home->lasdID();    
       $key = base64_encode($id);
       $id = $key;
@@ -42,7 +46,7 @@ if(isset($_POST['btn-signup']))
             Welcome to Coding Cage!<br/>
             To complete your registration  please , just click following link<br/>
             <br /><br />
-            <a href='http://localhost/x/verify.php?id=$id&code=$code'>Click HERE to Activate :)</a>
+            <a href='http://localhost/keiladialy/project/keiladialy/verify.php?id=$id&code=$code'>Click HERE to Activate :)</a>
             <br /><br />
             Thanks,";
             
@@ -68,6 +72,15 @@ if(isset($_POST['btn-signup']))
   $stmt_user->execute(array(":uid"=>$_REQUEST['uid']));
   $row_user = $stmt_user->fetch(PDO::FETCH_ASSOC);
 
+   if(@$_REQUEST["update"]=="success"){    $msg = "
+          <div class='alert alert-success'>
+            <button class='close' data-dismiss='alert'>&times;</button>
+            <strong>Success!</strong> Data have been update!
+            </div>
+          ";
+    }
+
+
 }elseif(isset($_REQUEST['btn-update']) and $_REQUEST['action']=='update'){
  
     // Paramater
@@ -82,20 +95,25 @@ if(isset($_POST['btn-signup']))
 
   if (!empty($_FILES["txtuphoto"]["name"])) {
 
-    $target_dir_thumnail = 'img/uploads/thumbs/';
+    $target_dir_thumnail = 'img/user/';
+     /* Move thumnail image */
+    $img_smg_s=uploadImage($target_dir_thumnail, 'txtuphoto');
 
     //update file image
     $stmt_user=$user_home->runQuery("UPDATE tbl_users SET firstName=:fname, LastName=:lname, displayName=:dname, position=:upositon, level=:ulevel, userPhoto=:uphoto WHERE userID =:uid");
     $stmt_user->execute(array(':fname' =>$fname, ':lname'=> $lname, ":dname" => $dname, ":upositon" => $position, ":ulevel"=>$ulevel, 
-    ":uphoto"=>$uphoto, "uid"=> $uid)); 
+    ":uphoto"=>$uphoto, "uid"=> $uid));
+     echo '<script type="text/javascript">window.location = "kd-admin.php?page=user&action=edit&uid='.$uid.'"</script>';
 
   }else{
 
     //No file images
     $stmt_user=$user_home->runQuery("UPDATE tbl_users SET firstName=:fname, LastName=:lname, displayName=:dname, position=:upositon, level=:ulevel WHERE userID =:uid");
     $stmt_user->execute(array(':fname' =>$fname, ':lname'=> $lname, ":dname" => $dname, ":upositon" => $position, ":ulevel"=>$ulevel, "uid"=> $uid));
-
+      echo '<script type="text/javascript">window.location = "kd-admin.php?page=user&action=edit&uid='.$uid.'&update=success"</script>';
   }
+
+
 }
 ?>
 <div class="row">
@@ -177,8 +195,14 @@ if(isset($_POST['btn-signup']))
           <div class="form-group">
             <label for="exampleInputFile">File input</label>
             <input type="file" name="txtuphoto">
-
+              <?php if (@$row_user['userPhoto']!=null){ ?>
+                    <img src="img/user/<?php echo $row_user['userPhoto']; ?>" style="width:200px; margin-top:10px;">
+                <?php 
+                  }else{
+                ?>
+                  
             <p class="help-block">Upload you image profile.</p>
+            <?php } ?>
           </div>
           <!--
           <div class="checkbox">

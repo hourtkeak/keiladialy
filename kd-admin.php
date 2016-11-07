@@ -171,6 +171,14 @@ desired effect
         <li class="active"><a href="#"><i class="fa fa-link"></i> <span>Link</span></a></li>
         <li><a href="#"><i class="fa fa-link"></i> <span>Another Link</span></a></li>
         <li class="treeview">
+          <a href="#"><i class="fa fa-link"></i> <span>MENU</span> <i class="fa fa-angle-left pull-right"></i></a>
+          <ul class="treeview-menu">
+            <li><a href="kd-admin.php?page=menu_list">List all MENU</a></li>
+            <li><a href="kd-admin.php?page=add_menu">Add New MENU</a></li>
+          </ul>
+        </li>
+
+        <li class="treeview">
           <a href="#"><i class="fa fa-fw fa-user"></i> <span>User Setting</span>
             <span class="pull-right-container">
               <i class="fa fa-angle-left pull-right"></i>
@@ -207,15 +215,19 @@ desired effect
               case 'user':
                 include "admin/user_register.php";
                 break;
-                 case 'user_list':
+              case 'user_list':
                 include "admin/user_list.php";
                 break;
-              
+              case 'menu_list':
+                include "admin/menu_list.php";
+                break;
+              case 'add_menu':
+                include "admin/menu.php";
+                break;
               default:
                 include "admin/main.php";
                 break;
             }
-
         ?>
     </section>
     <!-- /.content -->

@@ -1,3 +1,15 @@
+<?php 
+if (@$_REQUEST['action']=="delete") {
+  $stmt_delete = $user_home->runQuery("DELETE FROM tbl_users WHERE userID = :uid");
+  $stmt_delete->execute(array(':uid' => $_REQUEST['uid']));
+  $msg = "<div class='alert alert-success' style='margin:10px;'>
+            <button class='close' data-dismiss='alert'>&times;</button>
+            <strong>Success!</strong> Data have been deleted!
+            </div>";
+}
+
+?>
+
 <div class="row">
         <div class="col-xs-12">
           <div class="box">
@@ -8,8 +20,12 @@
            <a href="kd-admin.php?page=user" class="btn btn-block btn-primary btn-sm">Add new user </a>
           </div>
             </div>
-            <!-- /.box-header -->
+            
             <div class="box-body table-responsive no-padding">
+              <!-- /.box-header -->
+            <?php if (isset($_REQUEST["action"])){
+              echo $msg;
+            }?>
               <table class="table table-hover">
                 <tbody><tr>
                   <th>ID</th>
@@ -40,7 +56,7 @@
                   <td><?php echo $row_user['userEmail']; ?></td>
                   <td>
                       <a href="kd-admin.php?page=user&action=edit&uid=<?php echo $row_user['userID'];?>" type="button" class="btn btn-primary btn-sm"><i class="fa fa-fw fa-edit"></i></a>  &nbsp;  &nbsp;  &nbsp;
-                      <button type="button" class="btn btn-danger btn-sm"><i class="fa fa-fw fa-times"></i></button>
+                      <a href="kd-admin.php?page=user_list&action=delete&uid=<?php echo $row_user['userID'];?>" class="btn btn-danger btn-sm"><i class="fa fa-fw fa-times"></i></button>
 
                   </td>
                 </tr>

@@ -2,7 +2,7 @@
  <div class="box">
   <div class="box-header">
     <h3 class="box-title" style="padding-right:20px;">MENU List </h3>
-    <a href="sr-admin.php?page=add_menu" class="btn btn-primary btn-sm"> Add new menu</a>
+    <a href="kd-admin.php?page=add_menu" class="btn btn-primary btn-sm"> Add new menu</a>
     <div class="box-tools">
       <div class="input-group" style="width: 150px;">
 
@@ -25,13 +25,13 @@
       </tr>
        <?php 
             if(isset($_REQUEST['action'])&& $_REQUEST['action']=='delete'){
-              $stmt_d = $DB_con->prepare("DELETE FROM menu where  c_id =:menu_id");
+              $stmt_d = $user_home->runQuery("DELETE FROM menu where  c_id =:menu_id");
               $stmt_d -> execute(array(':menu_id'=> $_REQUEST['menu_id']));
           }
         ?>
 
        <?php
-          $stmt_menu = $DB_con->prepare("SELECT f.c_id, f.c_title, f.c_is_show, f.c_headline, f.c_main_id, (SELECT s.c_title FROM menu as s
+          $stmt_menu = $user_home->runQuery("SELECT f.c_id, f.c_title, f.c_is_show, f.c_headline, f.c_main_id, (SELECT s.c_title FROM menu as s
           WHERE s.c_id=f.c_main_id) as parent FROM menu as f"); 
           $stmt_menu -> execute();
           while($result_menu = $stmt_menu->fetch(PDO::FETCH_ASSOC)){
@@ -46,11 +46,11 @@
         <td>
          
           
-          <a href="sr-admin.php?page=menu_list&menu_id=<?php echo $result_menu['c_id'];?>&action=delete" class="btn btn-danger btn-xs" style="width:50px;"><i class="fa fa-fw fa-close"></i></a>
+          <a href="kd-admin.php?page=menu_list&menu_id=<?php echo $result_menu['c_id'];?>&action=delete" class="btn btn-danger btn-xs" style="width:50px;"><i class="fa fa-fw fa-close"></i></a>
           
-         <a href="sr-admin.php?page=add_menu&action=edit&menu_id=<?php echo $result_menu['c_id'];?>" class="btn  btn-warning btn-xs" style="width:50px;"><i class="fa fa-fw fa-edit"></i></a>
+         <a href="kd-admin.php?page=add_menu&action=edit&menu_id=<?php echo $result_menu['c_id'];?>" class="btn  btn-warning btn-xs" style="width:50px;"><i class="fa fa-fw fa-edit"></i></a>
          <?php if($result_menu['c_main_id']==2){?>
-          <a href="sr-admin.php?page=add_images&item_id=<?php echo $result_menu['c_id'];?>&images_type=d" class="btn btn-default btn-xs" style="width:50px;"><i class="fa fa-fw fa-file-image-o"></i></a>
+          <a href="kd-admin.php?page=add_images&item_id=<?php echo $result_menu['c_id'];?>&images_type=d" class="btn btn-default btn-xs" style="width:50px;"><i class="fa fa-fw fa-file-image-o"></i></a>
           <?php } ?>
         </td>
       </tr>

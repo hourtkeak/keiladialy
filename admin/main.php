@@ -13,7 +13,13 @@
 
             <div class="info-box-content">
               <span class="info-box-text">Number Of Article</span>
-              <span class="info-box-number">760</span>
+              <span class="info-box-number">
+                <?php $stmt_numarticle= $user_home->runQuery("SELECT count(*) AS num_article FROM Content"); 
+                      $stmt_numarticle->execute();
+                      $rs_num_article = $stmt_numarticle-> fetch(PDO::FETCH_ASSOC);
+                      echo $rs_num_article['num_article'];
+                ?>
+              </span>
             </div>
             <!-- /.info-box-content -->
           </div>
@@ -26,7 +32,13 @@
 
             <div class="info-box-content">
               <span class="info-box-text">User Registered</span>
-              <span class="info-box-number">2,000</span>
+              <span class="info-box-number">
+                  <?php $stmt_unum= $user_home->runQuery("SELECT count(*) AS unum FROM tbl_users"); 
+                    $stmt_unum->execute();
+                    $rs_unum = $stmt_unum->fetch(PDO::FETCH_ASSOC);
+                    echo $rs_unum['unum'];
+                  ?>
+              </span>
             </div>
             <!-- /.info-box-content -->
           </div>
@@ -51,62 +63,46 @@
             <!-- /.box-header -->
             <div class="box-body">
               <ul class="products-list product-list-in-box">
+                <?php 
+                      $stmt_article = $user_home->runQuery("SELECT * FROM content 
+                      LEFT JOIN menu ON content.cat_id=menu.c_id 
+                      LEFT JOIN images ON content.id=images.id_article
+                      LEFT JOIN tbl_users on content.member_id = tbl_users.userID
+                      ORDER BY content.id DESC LIMIT 20");
+                      $stmt_article->execute();
+
+                      while ($rs_article = $stmt_article->fetch(PDO::FETCH_ASSOC)){
+                ?>
                 <li class="item">
                   <div class="product-img">
-                    <img src="img/default-50x50.gif" alt="Product Image">
+                   
+                   <?php  if($rs_article['photo']!=null or $rs_article['photo']!=""){echo '<img src="img/uploads/'.$rs_article['photo'].'" alt="Product Image">';}else{echo '<img src="img/default-50x50.gif" alt="Product Image">';} ?>
+                    
                   </div>
                   <div class="product-info">
-                    <a href="javascript:void(0)" class="product-title">Samsung TV
-                      <span class="label label-warning pull-right">$1800</span></a>
+                    <a href="javascript:void(0)" class="product-title"><?php echo $rs_article['text_title'];?>
+                     <?php 
+                       if ($rs_article['display']==1) {
+                        echo'<span class="label label-info pull-right">published</span>';
+                       }else{
+                          echo'<span class="label label-danger pull-right">unpublished</span>';
+                       }
+                      ?>
+                      </a>
                         <span class="product-description">
-                          Samsung 32" 1080p 60Hz LED Smart HDTV.
+                          Date:&nbsp;<?php echo $rs_article['modified_date'];?>,&nbsp;&nbsp;
+                          Categories:&nbsp; <?php echo $rs_article['c_title'];?>,&nbsp;&nbsp;
+                          Display:&nbsp; <?php echo $rs_article['displayName'];?>
                         </span>
                   </div>
                 </li>
                 <!-- /.item -->
-                <li class="item">
-                  <div class="product-img">
-                    <img src="img/default-50x50.gif" alt="Product Image">
-                  </div>
-                  <div class="product-info">
-                    <a href="javascript:void(0)" class="product-title">Bicycle
-                      <span class="label label-info pull-right">$700</span></a>
-                        <span class="product-description">
-                          26" Mongoose Dolomite Men's 7-speed, Navy Blue.
-                        </span>
-                  </div>
-                </li>
-                <!-- /.item -->
-                <li class="item">
-                  <div class="product-img">
-                    <img src="img/default-50x50.gif" alt="Product Image">
-                  </div>
-                  <div class="product-info">
-                    <a href="javascript:void(0)" class="product-title">Xbox One <span class="label label-danger pull-right">$350</span></a>
-                        <span class="product-description">
-                          Xbox One Console Bundle with Halo Master Chief Collection.
-                        </span>
-                  </div>
-                </li>
-                <!-- /.item -->
-                <li class="item">
-                  <div class="product-img">
-                    <img src="img/default-50x50.gif" alt="Product Image">
-                  </div>
-                  <div class="product-info">
-                    <a href="javascript:void(0)" class="product-title">PlayStation 4
-                      <span class="label label-success pull-right">$399</span></a>
-                        <span class="product-description">
-                          PlayStation 4 500GB Console (PS4)
-                        </span>
-                  </div>
-                </li>
-                <!-- /.item -->
+                <?php } ?>
               </ul>
             </div>
             <!-- /.box-body -->
             <div class="box-footer text-center">
-              <a href="javascript:void(0)" class="uppercase">View All Products</a>
+              <a href="kd-admin.php?page=content_list" class="uppercase">View all article</a>
             </div>
             <!-- /.box-footer -->
           </div>

@@ -2625,9 +2625,11 @@ a:focus {
 }
 .products-list .product-info {
   margin-left: 60px;
+    font-family: font-family: 'Nokora', serif;
 }
 .products-list .product-title {
   font-weight: 600;
+  font-family: font-family: 'Nokora', serif;
 }
 .products-list .product-description {
   display: block;

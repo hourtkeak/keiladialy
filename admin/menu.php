@@ -4,7 +4,7 @@
     <div class="box-tools pull-right">
       <!-- Buttons, labels, and many other things can be placed here! -->
       <!-- Here is a label for example -->
-     <a href="sr-admin.php?page=menu_list" class="btn btn-block btn-primary btn-sm"> View all menu</a>
+     <a href="kd-admin.php?page=menu_list" class="btn btn-block btn-primary btn-sm"> View all menu</a>
     </div><!-- /.box-tools -->
   </div><!-- /.box-header -->
   <div class="box-body">
@@ -20,7 +20,7 @@
 
         <?php
         	if(isset($_REQUEST["menu_id"])){
-	        	$stmt_menu = $DB_con->prepare("SELECT * FROM menu WHERE c_id=:menu_id"); 
+	        	$stmt_menu = $user_home->runQuery("SELECT * FROM menu WHERE c_id=:menu_id"); 
 	        	$stmt_menu ->execute(array(':menu_id'=>$_REQUEST['menu_id']));
 	        	$rs_menu = $stmt_menu->fetch(PDO::FETCH_ASSOC);
         	}
@@ -35,7 +35,7 @@
 			<select class="form-control" name="t_parent">
 				<option value="parent"> --Please Select-- </option>
 				<?php
-					$parent_sql =$DB_con->prepare("SELECT c_id, c_title FROM menu WHERE c_type =:num");
+					$parent_sql =$user_home->runQuery("SELECT c_id, c_title FROM menu WHERE c_type =:num");
 					$parent_sql->execute(array(':num'=>1));
                     while($result_parent=$parent_sql->fetch(PDO::FETCH_ASSOC)){
                 if($result_parent['c_id']==$rs_menu['c_main_id']){$select= "selected";}else{$select="";};

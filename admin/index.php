@@ -1,7 +1,8 @@
 <?php
-session_start();
 require_once 'class.user.php';
 $user_login = new USER();
+$user_login->sec_session_start();
+
 
 if($user_login->is_logged_in()!="")
 {
@@ -16,7 +17,8 @@ if(isset($_POST['btn-login']))
 	if($user_login->login($email,$upass))
 	{
 		$user_login->redirect('../kd-admin.php');
-	}
+  }
+
 }
 ?>
 
@@ -49,7 +51,7 @@ if(isset($_POST['btn-login']))
 <body class="hold-transition login-page">
 <div class="login-box">
   <div class="login-logo">
-    <a href="../index.php"><b>Admin</b> KD</a>
+    <a href="index.php"><b>Admin</b> KD</a>
   </div>
   <div class="login-box-body">
 		<?php 
@@ -63,14 +65,14 @@ if(isset($_POST['btn-login']))
             <?php
 		}
 		?>
-        <form class="form-signin" method="post">
+        <form class="form-signin" method="post" accept="index.php">
         <?php
         if(isset($_GET['error']))
 		{
 			?>
-            <div class='alert alert-success'>
+            <div class='alert alert-error'>
 				<button class='close' data-dismiss='alert'>&times;</button>
-				<strong>Wrong Details!</strong> 
+				<strong><?php echo $_GET['error'];?></strong> 
 			</div>
             <?php
 		}

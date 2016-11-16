@@ -1,9 +1,9 @@
 <?php
-session_start();
 require_once 'admin/class.user.php';
-include 'admin/upload_function.php';
-
+include 'admin/upload_images.php';
+include 'admin/resize-class.php';
 $user_home = new USER();
+$user_home->sec_session_start();
 
 if(!$user_home->is_logged_in()){
 
@@ -42,16 +42,15 @@ scratch. This page gets rid of all links and provides the needed markup only.
   -->
   <link rel="stylesheet" href="css/skins/skin-blue.min.css">
 
+    <link rel="stylesheet" href="css/AdminLTE_adjustment.css">
+    <link href='http://fonts.googleapis.com/css?family=Hanuman|Suwannaphum|Nokora' rel='stylesheet' type='text/css'>
+
   <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
   <!--[if lt IE 9]>
   <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
   <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
   <![endif]-->
-
-  <!-- register -->
-  <script type="text/JavaScript" src="js/sha512.js"></script> 
-  <script type="text/JavaScript" src="js/forms.js"></script>
 
 </head>
 <!--
@@ -81,7 +80,7 @@ desired effect
   <header class="main-header">
 
     <!-- Logo -->
-    <a href="index2.html" class="logo">
+    <a href="kd-admin.php" class="logo">
       <!-- mini logo for sidebar mini 50x50 pixels -->
       <span class="logo-mini"><b>KD</b></span>
       <!-- logo for regular state and mobile devices -->
@@ -102,18 +101,18 @@ desired effect
             <!-- Menu Toggle Button -->
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
               <!-- The user image in the navbar-->
-              <img src="img/user2-160x160.jpg" class="user-image" alt="User Image">
+              <img src="img/user/<?php echo $row['userPhoto']; ?>" class="user-image" alt="User Image">
               <!-- hidden-xs hides the username on small devices so only the image appears. -->
-              <span class="hidden-xs">Alexander Pierce</span>
+              <span class="hidden-xs"> <?php echo $row['displayName']; ?> </span>
             </a>
             <ul class="dropdown-menu">
               <!-- The user image in the menu -->
               <li class="user-header">
-                <img src="img/user2-160x160.jpg" class="img-circle" alt="User Image">
+                <img src="img/user/<?php echo $row['userPhoto']; ?>" class="img-circle" alt="User Image">
 
                 <p>
-                  <?php echo $row['userEmail']; ?> - Reporter
-                  <small>Member since Nov. 2012</small>
+                  <?php echo $row['displayName']; ?> - <?php echo $row['position']; ?>
+                  <small>Member since <?php echo $row['create_date'];?> </small>
                 </p>
               </li>
               <!-- Menu Body -->
@@ -143,10 +142,10 @@ desired effect
       <!-- Sidebar user panel (optional) -->
       <div class="user-panel">
         <div class="pull-left image">
-          <img src="img/user2-160x160.jpg" class="img-circle" alt="User Image">
+          <img src="img/user/<?php echo $row['userPhoto'];?>" class="img-circle" alt="User Image">
         </div>
         <div class="pull-left info">
-          <p>Alexander Pierce</p>
+          <p><?php echo $row['displayName']; ?> </p>
           <!-- Status -->
           <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
         </div>
@@ -168,13 +167,20 @@ desired effect
       <ul class="sidebar-menu">
         <li class="header">HEADER</li>
         <!-- Optionally, you can add icons to the links -->
-        <li class="active"><a href="#"><i class="fa fa-link"></i> <span>Link</span></a></li>
-        <li><a href="#"><i class="fa fa-link"></i> <span>Another Link</span></a></li>
+        <li class="active"><a href="kd-admin.php"><i class="fa fa-dashboard"></i><span>Dashboard</span></a></li>
+        <li><a href="kd-admin.php?page=slideshow"><i class="fa fa-fw fa-file-image-o"></i> <span>Slide Show</span></a></li>
         <li class="treeview">
-          <a href="#"><i class="fa fa-link"></i> <span>MENU</span> <i class="fa fa-angle-left pull-right"></i></a>
+          <a href="#"><i class="fa fa-fw fa-list-alt"></i> <span>MENU</span> <i class="fa fa-angle-left pull-right"></i></a>
           <ul class="treeview-menu">
             <li><a href="kd-admin.php?page=menu_list">List all MENU</a></li>
             <li><a href="kd-admin.php?page=add_menu">Add New MENU</a></li>
+          </ul>
+        </li>
+        <li class="treeview">
+          <a href="#"><i class="fa fa-fw fa-newspaper-o"></i> <span>Article</span> <i class="fa fa-angle-left pull-right"></i></a>
+          <ul class="treeview-menu">
+            <li><a href="kd-admin.php?page=content">Add New Article</a></li>
+            <li><a href="kd-admin.php?page=content_list">Article List</a></li>
           </ul>
         </li>
 
@@ -224,6 +230,21 @@ desired effect
               case 'add_menu':
                 include "admin/menu.php";
                 break;
+              case 'slideshow':
+                include "admin/slide_show.php";
+                break;
+            
+              case 'content':
+                include "admin/content.php";
+                break;
+             
+              case 'content_list':
+                include "admin/content_list.php";
+                break;
+                
+              
+
+
               default:
                 include "admin/main.php";
                 break;
@@ -260,10 +281,59 @@ desired effect
 <script src="bootstrap/js/bootstrap.min.js"></script>
 <!-- AdminLTE App -->
 <script src="js/app.min.js"></script>
-
 <!-- Optionally, you can add Slimscroll and FastClick plugins.
      Both of these plugins are recommended to enhance the
      user experience. Slimscroll is required when using the
      fixed layout. -->
+         <!--fixed layout -->
+<script type="text/javascript" src="plugins/tinymce/tinymce.min.js"></script>
+<script type="text/javascript">
+tinymce.init({
+  selector: ".textarea1",
+  
+  
+  
+  plugins: [
+                "advlist autolink autosave link image lists charmap print preview hr anchor pagebreak spellchecker",
+                "searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking",
+                "table contextmenu directionality emoticons template textcolor paste textcolor colorpicker jbimages"
+        ],
+
+        toolbar1: "newdocument | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | styleselect formatselect fontselect fontsizeselect",
+        toolbar2: "cut copy paste | searchreplace | bullist numlist | outdent indent blockquote | undo redo | link unlink anchor image media code | insertdatetime preview | forecolor backcolor",
+        toolbar3: "table | hr removeformat | subscript superscript | charmap emoticons | print fullscreen | ltr rtl | spellchecker | visualchars visualblocks nonbreaking template pagebreak restoredraft jbimages",
+
+        menubar: false,
+        toolbar_items_size: 'small',
+  
+    
+// Image Path Convert URL
+relative_urls: false,
+remove_script_host: false,
+document_base_url: 'http://localhost/',
+
+ /*font_formats: "Hanuman='Hanuman', serif;"+
+        "Arial=arial,helvetica,sans-serif;"+
+        "Arial Black=arial black,avant garde;"+
+        "Book Antiqua=book antiqua,palatino;"+
+        "Comic Sans MS=comic sans ms,sans-serif;"+
+        "Courier New=courier new,courier;"+
+        "Georgia=georgia,palatino;"+
+        "Helvetica=helvetica;"+
+        "Impact=impact,chicago;"+
+        "Symbol=symbol;"+
+        "Tahoma=tahoma,arial,helvetica,sans-serif;"+
+        "Terminal=terminal,monaco;"+
+        "Times New Roman=times new roman,times;"+
+        "Trebuchet MS=trebuchet ms,geneva;"+
+        "Verdana=verdana,geneva;"+
+        "Webdings=webdings;"+
+        "Wingdings=wingdings,zapf dingbats"*/
+    
+});
+ 
+</script>
+
+
 </body>
 </html>

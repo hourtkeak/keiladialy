@@ -25,6 +25,30 @@ class USER
 		$stmt = $this->conn->lastInsertId();
 		return $stmt;
 	}
+
+	function sec_session_start() {
+	    $session_name = 'sec_session_id';   // Set a custom session name 
+	    $secure = SECURE;
+
+	    // This stops JavaScript being able to access the session id.
+	    $httponly = true;
+
+	    // Forces sessions to only use cookies.
+	    if (ini_set('session.use_only_cookies', 1) === FALSE) {
+	        header("Location: ../index.php?error=Could not initiate a safe session (ini_set)");
+	        exit();
+	    }
+
+	    // Gets current cookies params.
+	    $cookieParams = session_get_cookie_params();
+	    session_set_cookie_params($cookieParams["lifetime"], $cookieParams["path"], $cookieParams["domain"], $secure, $httponly);
+
+	    // Sets the session name to the one set above.
+	    session_name($session_name);
+
+	    session_start();            // Start the PHP session 
+	    session_regenerate_id();    // regenerated the session, delete the old one. 
+	}
 	
 	public function register($email, $uname, $upass,$code,$fname, $lname, $dname, $position, $ulevel, $uphoto)
 	{
@@ -61,38 +85,109 @@ class USER
 		}
 	}
 	
-	public function login($email,$upass)
+
+public function checkbrute($user_id) {
+
+    // Get timestamp of current time 
+    $now = time();
+
+    // All login attempts are counted from the past 2 hours. 
+    $valid_attempts = $now - (2 * 60 * 60);
+
+    if ($stmt =  $this->conn->prepare("SELECT time 
+                                  FROM login_attempts 
+                                  WHERE user_id = :uid AND time > :valid_attempts")) {
+        $stmt->execute(array(':uid' => $user_id, ':valid_attempts'=> $valid_attempts));
+
+       $count_row = $stmt->rowCount();
+
+        // If there have been more than 5 failed logins 
+        if ($count_row  > 5) {
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+        // Could not create a prepared statement
+       	header("Location: login.php?error");
+        exit();
+    }
+}
+
+public function login($email,$upass)
 	{
 		try
 		{
 			$stmt = $this->conn->prepare("SELECT * FROM tbl_users WHERE userEmail=:email_id");
-			$stmt->execute(array(":email_id"=>$email));
+			$stmt->execute(array(':email_id'=>$email));
 			$userRow=$stmt->fetch(PDO::FETCH_ASSOC);
+
+			// hash the password with the unique salt.
+       		 $password = hash('sha512', $upass.$userRow['saltPass']);
 			
 			if($stmt->rowCount() == 1)
 			{
+
 				if($userRow['userStatus']=="Y")
 				{
-					if($userRow['userPass']==md5($upass))
-					{
-						$_SESSION['userSession'] = $userRow['userID'];
-						return true;
-					}
-					else
-					{
-						header("Location: login.php?error");
+				
+					if ($this->checkbrute($userRow['userID']) == true) {
+
+						// Account is locked 
+                		// Send an email to user saying their account is locked 
+                		//return false;
+                		header("Location: index.php?error=Account is Locked! Try agian after 2 hours");
 						exit;
+
+                	}else{
+
+                	;
+
+						if($userRow['userPass']==$password)
+						{
+							// Password is correct!
+		                    // Get the user-agent string of the user.
+		                    $user_browser = $_SERVER['HTTP_USER_AGENT'];
+
+		                    // XSS protection as we might print this value
+		                    $user_id = preg_replace("/[^0-9]+/", "", $user_id);
+		                    $_SESSION['userSession'] = $userRow['userID'];
+
+		                    // XSS protection as we might print this value
+		                    $username = preg_replace("/[^a-zA-Z0-9_\-]+/", "", $username);
+
+		                    $_SESSION['username'] = $userRow['userName'];
+		                    $_SESSION['login_string'] = hash('sha512', $password . $user_browser);
+
+		                    // Login successful. 
+		                    return true;
+						}
+						else
+						{
+							$user_id = $userRow['userID'];
+							$now = time();
+	                    	if (!$this->conn->query("INSERT INTO login_attempts(user_id, time) 
+	                                    VALUES ('$user_id', '$now')")) {
+	                        	header("Location: index.php?error");
+	                        	exit();
+	                    	}
+	                    	//Testign Compare  Password 
+	                    	//echo $userRow['userPass'].'<br/>';
+                			//echo $password.'<br/>';
+							header("Location: index.php?error= Password is wrong! Try agian!");
+							exit;
+						}
 					}
 				}
 				else
 				{
-					header("Location: login.php?inactive");
+					header("Location: index.php?inactive");
 					exit;
 				}	
 			}
 			else
 			{
-				header("Location: login.php?error");
+				header("Location: index.php?error= No user registered");
 				exit;
 			}		
 		}
@@ -101,9 +196,8 @@ class USER
 			echo $ex->getMessage();
 		}
 	}
-	
-	
-	public function is_logged_in()
+
+public function is_logged_in()
 	{
 		if(isset($_SESSION['userSession']))
 		{
@@ -111,7 +205,8 @@ class USER
 		}
 	}
 	
-	public function redirect($url)
+
+public function redirect($url)
 	{
 		header("Location: $url");
 	}

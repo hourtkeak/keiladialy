@@ -1,6 +1,9 @@
 <?php
-include_once 'dbconfig.php';
-include_once 'upload_images.php';
+require_once 'class.user.php';
+include 'upload_images.php';
+include 'resize-class.php';
+
+$user_home = new USER();
 
 /* Parameter */
 $t_menu = $_REQUEST['t_menu'];
@@ -20,19 +23,19 @@ if($_FILES["img_menu"]["name"]!=""){
 $t_ordering = $_REQUEST['t_ordering'];
 
 // Query INSERT DATA into table MENU
-$stmt_menu= $DB_con->prepare("INSERT INTO menu(c_title, c_headline, c_desc, c_is_show, c_type, c_main_id, c_img, ordering)
+$stmt_menu= $user_home->runQuery("INSERT INTO menu(c_title, c_headline, c_desc, c_is_show, c_type, c_main_id, c_img, ordering)
 	 						value(:t_menu, :t_menu_headline, :menu_desc, :display, :c_type, :t_main_id, :img_menu, :t_ordering)");
 
 $stmt_menu -> execute(array(':t_menu' => $t_menu, ':t_menu_headline'=> $t_menu_headline, ':menu_desc' => $menu_desc, 
 	':display'=>$display, ':c_type' => $c_type, ':t_main_id'=>$t_main_id, ':img_menu' => $img_menu,':t_ordering' => $t_ordering));
 
 // GET LAST INSERT ID
- $last_id = $DB_con->lastInsertId();
+ $last_id = $user_home->lasdID();
  if($last_id!=""){
  	$msg = "Success! The data have been insert.";
  }
 
- echo "<script type='text/javascript'>window.location='../sr-admin.php?page=add_menu&action=edit&menu_id=".$last_id."&msg=".$msg."'</script>";
+ echo "<script type='text/javascript'>window.location='../kd-admin.php?page=add_menu&action=edit&menu_id=".$last_id."&msg=".$msg."'</script>";
 
 
 ?>

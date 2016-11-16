@@ -4,7 +4,7 @@ $user = new USER();
 
 if(empty($_GET['id']) && empty($_GET['code']))
 {
-	$user->redirect('login.php');
+	$user->redirect('index.php');
 }
 
 if(isset($_GET['id']) && isset($_GET['code']))
@@ -32,15 +32,20 @@ if(isset($_GET['id']) && isset($_GET['code']))
 			}
 			else
 			{
-				$password = md5($cpass);
-				$stmt = $user->runQuery("UPDATE tbl_users SET userPass=:upass WHERE userID=:uid");
-				$stmt->execute(array(":upass"=>$password,":uid"=>$rows['userID']));
+				// Create a random salt
+       			$random_salt = hash('sha512', uniqid(openssl_random_pseudo_bytes(16), TRUE));
+
+       			// Create salted password 
+       			$password = hash('sha512', $pass.$random_salt);
+       			
+				$stmt = $user->runQuery("UPDATE tbl_users SET userPass=:upass, saltPass=:salt WHERE userID=:uid");
+				$stmt->execute(array(":upass"=>$password, ":uid"=>$rows['userID'], ':salt'=> $random_salt));
 				
 				$msg = "<div class='alert alert-success'>
 						<button class='close' data-dismiss='alert'>&times;</button>
 						Password Changed.
 						</div>";
-				header("refresh:5;login.php");
+				header("refresh:5;index.php");
 			}
 		}	
 	}

@@ -1,4 +1,12 @@
 <?php
+/**
+ * Is this a secure connection?  The default is FALSE, but the use of an
+ * HTTPS connection for logging in is recommended.
+ * 
+ * If you are using an HTTPS connection, change this to TRUE
+ */
+define("SECURE", FALSE);    // For development purposes only!!!!
+
 class Database
 {
      
@@ -16,6 +24,7 @@ class Database
 		{
             $this->conn = new PDO("mysql:host=" . $this->host . ";dbname=" . $this->db_name, $this->username, $this->password);
 			$this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);	
+            $this->conn->exec("SET NAMES 'utf8';");
         }
 		catch(PDOException $exception)
 		{

@@ -197,14 +197,60 @@ public function login($email,$upass)
 		}
 	}
 
-public function is_logged_in()
+public function is_logged_in1()
 	{
 		if(isset($_SESSION['userSession']))
 		{
 			return true;
 		}
 	}
+
+public function is_logged_in(){
 	
+	// Check if all session variables are set 
+    if (isset($_SESSION['userSession'], $_SESSION['username'], $_SESSION['login_string'])) {
+        $user_id = $_SESSION['userSession'];
+        $login_string = $_SESSION['login_string'];
+        $username = $_SESSION['username'];
+
+        // Get the user-agent string of the user.
+        $user_browser = $_SERVER['HTTP_USER_AGENT'];
+
+        if ($stmt = $this->conn->prepare("SELECT userPass
+				      FROM tbl_users 
+				      WHERE userID = :user_id LIMIT 1")) {
+         
+         
+            $stmt->execute(array(':user_id' => $user_id));  
+        	$rs_user = $stmt->fetch(PDO::FETCH_ASSOC);
+          
+
+            if ($stmt->rowCount() == 1) {
+                // If the user exists get variables from result.
+                $password = $rs_user['userPass'];
+                $login_check = hash('sha512', $password . $user_browser);
+
+                if ($login_check == $login_string) {
+                    // Logged In!!!! 
+                    return true;
+                } else {
+                    // Not logged in 
+                    return false;
+                }
+            } else {
+                // Not logged in 
+                return false;
+            }
+        } else {
+            // Could not prepare statement
+            header("index.php?error=Database error: cannot prepare statement");
+            exit();
+        }
+    } else {
+        // Not logged in 
+        return false;
+    }
+}
 
 public function redirect($url)
 	{

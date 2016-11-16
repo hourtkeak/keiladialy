@@ -119,9 +119,9 @@ desired effect
               
               <!-- Menu Footer-->
               <li class="user-footer">
-                <div class="pull-left">
+                <!--<div class="pull-left">
                   <a href="#" class="btn btn-default btn-flat">Profile</a>
-                </div>
+                </div>-->
                 <div class="pull-right">
                   <a href="admin/logout.php" class="btn btn-default btn-flat">Sign out</a>
                 </div>
@@ -163,41 +163,7 @@ desired effect
       </form>
       <!-- /.search form -->
 
-      <!-- Sidebar Menu -->
-      <ul class="sidebar-menu">
-        <li class="header">HEADER</li>
-        <!-- Optionally, you can add icons to the links -->
-        <li class="active"><a href="kd-admin.php"><i class="fa fa-dashboard"></i><span>Dashboard</span></a></li>
-        <li><a href="kd-admin.php?page=slideshow"><i class="fa fa-fw fa-file-image-o"></i> <span>Slide Show</span></a></li>
-        <li class="treeview">
-          <a href="#"><i class="fa fa-fw fa-list-alt"></i> <span>MENU</span> <i class="fa fa-angle-left pull-right"></i></a>
-          <ul class="treeview-menu">
-            <li><a href="kd-admin.php?page=menu_list">List all MENU</a></li>
-            <li><a href="kd-admin.php?page=add_menu">Add New MENU</a></li>
-          </ul>
-        </li>
-        <li class="treeview">
-          <a href="#"><i class="fa fa-fw fa-newspaper-o"></i> <span>Article</span> <i class="fa fa-angle-left pull-right"></i></a>
-          <ul class="treeview-menu">
-            <li><a href="kd-admin.php?page=content">Add New Article</a></li>
-            <li><a href="kd-admin.php?page=content_list">Article List</a></li>
-          </ul>
-        </li>
-
-        <li class="treeview">
-          <a href="#"><i class="fa fa-fw fa-user"></i> <span>User Setting</span>
-            <span class="pull-right-container">
-              <i class="fa fa-angle-left pull-right"></i>
-            </span>
-          </a>
-          <ul class="treeview-menu">
-            <li><a href="kd-admin.php?page=user_list">User</a></li>
-            <li><a href="kd-admin.php?page=user">Register</a></li>
-            <li><a href="admin/fpass.php">Reset Password</a></li>
-          </ul>
-        </li>
-      </ul>
-      <!-- /.sidebar-menu -->
+        <?php include "admin/menu-sidebar.php";?>
     </section>
     <!-- /.sidebar -->
   </aside>
@@ -215,41 +181,7 @@ desired effect
 
     <!-- Main content -->
     <section class="content">
-
-        <?php 
-            switch (@$_REQUEST["page"]) {
-              case 'user':
-                include "admin/user_register.php";
-                break;
-              case 'user_list':
-                include "admin/user_list.php";
-                break;
-              case 'menu_list':
-                include "admin/menu_list.php";
-                break;
-              case 'add_menu':
-                include "admin/menu.php";
-                break;
-              case 'slideshow':
-                include "admin/slide_show.php";
-                break;
-            
-              case 'content':
-                include "admin/content.php";
-                break;
-             
-              case 'content_list':
-                include "admin/content_list.php";
-                break;
-                
-              
-
-
-              default:
-                include "admin/main.php";
-                break;
-            }
-        ?>
+        <?php include "admin/content-form.php"; ?>
     </section>
     <!-- /.content -->
   </div>

@@ -79,7 +79,7 @@ if(isset($_POST['btn-submit']))
 <body class="hold-transition login-page">
 <div class="login-box">
 	 <div class="login-logo">
-    <a href="../index.php"><b>Admin</b> KD</a>
+    <a href="../kd-admin.php"><b>Admin</b> KD</a>
   </div>
 	 <div class="login-box-body">
       <form class="form-signin" method="post">

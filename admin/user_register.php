@@ -90,13 +90,25 @@ if(isset($_POST['btn-signup']))
   $stmt_user->execute(array(":uid"=>$_REQUEST['uid']));
   $row_user = $stmt_user->fetch(PDO::FETCH_ASSOC);
 
-   if(@$_REQUEST["update"]=="success"){    $msg = "
+   if(@$_REQUEST["update"]=="success"){    
+
+      $msg = "
           <div class='alert alert-success'>
             <button class='close' data-dismiss='alert'>&times;</button>
-            <strong>Success!</strong> Data have been update!
+            <strong>Success!</strong> Data have been update! <br>
+            ".@$_REQUEST['e_alert']."
             </div>
           ";
+    } elseif(@$_REQUEST["update"]=="email"){  
+         $msg = "
+           <div class='alert alert-error'>
+              <button class='close' data-dismiss='alert'>&times;</button>
+                <strong>Sorry !</strong>  email allready exists , Please Try another one
+              </div>
+          ";
     }
+
+
 
 
 }elseif(isset($_REQUEST['btn-update']) and $_REQUEST['action']=='update'){
@@ -127,6 +139,8 @@ if(isset($_POST['btn-signup']))
                 <strong>Can't Update!</strong>  email allready exists , Please Try another one
               </div>
               ";
+              echo '<script type="text/javascript">window.location = "kd-admin.php?page=user&action=edit&uid='.$uid.'&update=email"</script>';
+
         }else{
 
 
@@ -134,7 +148,7 @@ if(isset($_POST['btn-signup']))
             $key = base64_encode($id);
             $id = $key;
          
-
+            $subject='Confirm E-mail Changed';
             $message = "          
                   Hello $uname,
                   <br /><br />
@@ -144,17 +158,13 @@ if(isset($_POST['btn-signup']))
                   <a href='http://localhost/keiladialy/project/keiladialy/admin/verify.php?id=$id&code=$code'>Click HERE to Activate :)</a>
                   <br /><br />
                   Thanks,";
+
             $user_home->send_mail($email,$message,$subject); 
 
-            $stmt_uemail=$user_home->runQuery("UPDATE tbl_users SET userEmail = :uemail WHERE userID =:uid");
-            $stmt_uemail->execute(array(':uemail' => $email, ':uid' => $uid));
+            $stmt_uemail=$user_home->runQuery("UPDATE tbl_users SET userEmail = :uemail, userStatus = :activate WHERE userID =:uid");
+            $stmt_uemail->execute(array(':uemail' => $email, ':uid' => $uid, ':activate' => 'N'));
 
-            $msg =" <div class='alert alert-success'>
-                    <button class='close' data-dismiss='alert'>&times;</button>
-                    <strong>Success!</strong>  We've sent an email to $email.
-                      Please click on the confirmation link in the email to Activate E-mail. 
-                    </div>";
-            
+            $e_alert = "Please check E-mail to activate your E-mail";
         }
     }
 
@@ -168,14 +178,14 @@ if(isset($_POST['btn-signup']))
     $stmt_user=$user_home->runQuery("UPDATE tbl_users SET firstName=:fname, LastName=:lname, displayName=:dname, position=:upositon, level=:ulevel, userPhoto=:uphoto WHERE userID =:uid");
     $stmt_user->execute(array(':fname' =>$fname, ':lname'=> $lname, ":dname" => $dname, ":upositon" => $position, ":ulevel"=>$ulevel, 
     ":uphoto"=>$uphoto, "uid"=> $uid));
-     echo '<script type="text/javascript">window.location = "kd-admin.php?page=user&action=edit&uid='.$uid.'"</script>';
+     echo '<script type="text/javascript">window.location = "kd-admin.php?page=user&action=edit&uid='.$uid.'&update=success&e_alert='.@$e_alert.'"</script>';
 
   }else{
 
     //No file images
     $stmt_user=$user_home->runQuery("UPDATE tbl_users SET firstName=:fname, LastName=:lname, displayName=:dname, position=:upositon, level=:ulevel WHERE userID =:uid");
     $stmt_user->execute(array(':fname' =>$fname, ':lname'=> $lname, ":dname" => $dname, ":upositon" => $position, ":ulevel"=>$ulevel, "uid"=> $uid));
-      //echo '<script type="text/javascript">window.location = "kd-admin.php?page=user&action=edit&uid='.$uid.'&update=success"</script>';
+    echo '<script type="text/javascript">window.location = "kd-admin.php?page=user&action=edit&uid='.$uid.'&update=success&e_alert='.@$e_alert.'"</script>';
   }
 
 
@@ -245,7 +255,7 @@ if(isset($_POST['btn-signup']))
           </div>
           <div class="form-group">
             <label for="exampleInputPassword1">Password</label>
-            <input type="password" class="form-control" id="password" placeholder="Password" name="txtpass" <?php if(isset($_REQUEST['action'])){?> disabled="disabled"<?php } ?> required />
+            <input type="password" class="form-control" id="password" placeholder="Password" value="<?php echo @$row_user['userPass'];?>" name="txtpass" <?php if(isset($_REQUEST['action'])){?> disabled="disabled"<?php } ?> required />
           </div>
          
           <div class="form-group">
